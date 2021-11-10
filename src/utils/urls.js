@@ -1,4 +1,4 @@
-export const baseUrl = "http://lookup-service-prod.mlb.com";
+export const baseUrl = "https://lookup-service-prod.mlb.com";
 export const playerUrl = baseUrl + "/json/named.search_player_all.bam";
 export const hittingUrl = baseUrl + "/json/named.sport_career_hitting.bam";
 export const pitchingUrl = baseUrl + "/json/named.sport_career_pitching.bam";
