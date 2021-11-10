@@ -1,5 +1,8 @@
 body {
-  background-color: #333;
+  min-height: 100vh;
+  background-image: url("../stadium.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
   color: #fff;
 }
 
@@ -9,7 +12,64 @@ input {
 
 button:disabled,
 button:disabled:hover {
-  color: white;
   cursor: not-allowed;
 }
 
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+  color: #fff;
+  background-color: #6db365;
+  border-color: #77c66e;
+}
+.button.button-primary:hover,
+button.button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus,
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
+  color: #fff;
+  background-color: #50884b;
+  border-color: #6db365;
+}
+
+.player-stats {
+  width: 100%;
+  text-align: center;
+  background: rgba(0, 0, 0, 1);
+  color: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.search-results {
+  width: 100%;
+  text-align: center;
+  background: rgba(0, 0, 0, 1);
+  color: #fff;
+  padding: 10px;
+  height: 61.1rem;
+  border-radius: 12px;
+  overflow: scroll;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+}
+li:hover {
+  background: rgba(0, 0, 0, 1);
+  color: #fff;
+  cursor: pointer;
+}
+
+input {
+  margin-top: 2rem;
+}

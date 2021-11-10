@@ -3,17 +3,54 @@ import Player from "./components/Player";
 import "./css/normalize.css";
 import "./css/skeleton.css";
 import "./css/custom.css";
-import { hittingUrl, playerIdUrl, playerSearchUrl } from "./utils/urls";
+import {
+  getPhotoUrl,
+  hittingUrl,
+  playerIdUrl,
+  playerSearchUrl,
+} from "./utils/urls";
 
 const listStyles = {
   listStyle: "none",
-  maxHeight: "50rem",
   overflow: "scroll",
   border: "1px solid #ccc",
   borderRadius: "8px",
   padding: "1rem",
   margin: "0.5rem",
 };
+
+const playerIDs = [
+  "121578",
+  "111188",
+  "124341",
+  "110001",
+  "112431",
+  "114680",
+  "119602",
+  "545361",
+  "118258",
+  "405395",
+  "121314",
+  "113376",
+  "121347",
+  "121836",
+  "121311",
+  "115749",
+  "116156",
+  "115270",
+  "110849",
+  "112391",
+  "116539",
+  "400085",
+  "110925",
+  "110533",
+  "124650",
+  "111437",
+  "111986",
+  "120117",
+  "118743",
+  "122544",
+];
 
 function App() {
   const [players, setPlayers] = useState({
@@ -38,8 +75,12 @@ function App() {
 
   useEffect(() => {
     const queryString = new URLSearchParams(window.location.search);
-    const player1Id = queryString.get("player1");
-    const player2Id = queryString.get("player2");
+    const player1Id =
+      queryString.get("player1") ||
+      playerIDs[Math.floor(Math.random() * playerIDs.length)];
+    const player2Id =
+      queryString.get("player2") ||
+      playerIDs[Math.floor(Math.random() * playerIDs.length)];
     if (player1Id) {
       getPlayerById(player1Id).then((res) => {
         const playerInfo = res.player_info.queryResults.row;
@@ -212,26 +253,49 @@ function App() {
               fallback="Player 1"
             />
           ) : (
-            <div>
-              {(results.player1.length > 0 || noResults) && (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  style={{
+                    backgroundColor: "white",
+                    width: "200px",
+                    padding: "8px",
+                    minHeight: "300px",
+                    border: "1px solid black",
+                    boxShadow: "0px 0px 10px #585858",
+                    marginBottom: "2rem",
+                  }}
+                  src={getPhotoUrl()}
+                  alt="blank headshot"
+                />
+              </div>
+              <div className="search-results">
                 <h3>Search Results</h3>
-              )}
-              {noResults && "No results"}
-              {results.player1.length > 0 && (
-                <div>
-                  <ul style={listStyles}>
-                    {results.player1.map((player) => (
-                      <li
-                        key={player.player_id}
-                        onClick={() => selectPlayer(player, "player1")}
-                      >
-                        {player.name_display_first_last}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+                {noResults && "No results"}
+                {results.player1.length > 0 && (
+                  <div>
+                    <ul style={listStyles}>
+                      {results.player1.map((player) => (
+                        <li
+                          key={player.player_id}
+                          onClick={() => selectPlayer(player, "player1")}
+                        >
+                          <span>{player.name_display_first_last}</span>
+                          <span>{player.position}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
         {/* Player Two */}
@@ -264,32 +328,49 @@ function App() {
               fallback="Player 2"
             />
           ) : (
-            <div>
-              {(results.player2.length > 0 || noResults) && (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  style={{
+                    backgroundColor: "white",
+                    width: "200px",
+                    padding: "8px",
+                    minHeight: "300px",
+                    border: "1px solid black",
+                    boxShadow: "0px 0px 10px #585858",
+                    marginBottom: "2rem",
+                  }}
+                  src={getPhotoUrl()}
+                  alt="blank headshot"
+                />
+              </div>
+              <div className="search-results">
                 <h3>Search Results</h3>
-              )}
-              {noResults && "No results"}
-              {results.player2.length > 0 && (
-                <div>
-                  <ul style={listStyles}>
-                    {results.player2.map((player) => (
-                      <li
-                        key={player.player_id}
-                        onClick={() => selectPlayer(player, "player2")}
-                        style={{
-                          cursor: "pointer",
-                          "&:hover": {
-                            background: "#efefef",
-                          },
-                        }}
-                      >
-                        {player.name_display_first_last}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+                {noResults && "No results"}
+                {results.player2.length > 0 && (
+                  <div>
+                    <ul style={listStyles}>
+                      {results.player2.map((player) => (
+                        <li
+                          key={player.player_id}
+                          onClick={() => selectPlayer(player, "player2")}
+                        >
+                          <span>{player.name_display_first_last}</span>
+                          <span>{player.position}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

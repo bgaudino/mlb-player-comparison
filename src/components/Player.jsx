@@ -32,7 +32,6 @@ export default function Player({ player, comp }) {
         alignItems: "center",
       }}
     >
-      <h3>{playerInfo?.name_display_first_last}</h3>
       {playerInfo && (
         <img
           style={{
@@ -48,31 +47,34 @@ export default function Player({ player, comp }) {
           alt={playerInfo.name_display_first_last}
         />
       )}
-      {stats && (
-        <table style={{ width: "100%" }}>
-          <tbody>
-            {statCategories.map((stat) => (
-              <tr
-                key={stat}
-                style={
-                  !comp
-                    ? {}
-                    : {
-                        backgroundColor: getColor(stats?.[stat], comp?.[stat])
-                          .background,
-                        color: getColor(stats?.[stat], comp?.[stat]).color,
-                      }
-                }
-              >
-                <td style={{ fontWeight: "bold", padding: 20 }}>
-                  {stat.toUpperCase()}
-                </td>
-                <td>{stats?.[stat]}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div className="player-stats">
+        <h3 className="name">{playerInfo?.name_display_first_last}</h3>
+        {stats && (
+          <table style={{ width: "100%" }}>
+            <tbody>
+              {statCategories.map((stat) => (
+                <tr
+                  key={stat}
+                  style={
+                    !comp
+                      ? {}
+                      : {
+                          backgroundColor: getColor(stats?.[stat], comp?.[stat])
+                            .background,
+                          color: getColor(stats?.[stat], comp?.[stat]).color,
+                        }
+                  }
+                >
+                  <td style={{ fontWeight: "bold", padding: 20 }}>
+                    {stat.toUpperCase()}
+                  </td>
+                  <td>{stats?.[stat]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
