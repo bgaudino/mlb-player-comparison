@@ -1,0 +1,15 @@
+body {
+  background-color: #333;
+  color: #fff;
+}
+
+input {
+  color: black;
+}
+
+button:disabled,
+button:disabled:hover {
+  color: white;
+  cursor: not-allowed;
+}
+
