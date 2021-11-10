@@ -1,4 +1,4 @@
-import { getPlayerUrl } from "../utils/urls";
+import { getPhotoUrl } from "../utils/urls";
 
 const statCategories = ["avg", "hr", "rbi", "r", "sb", "obp", "slg", "ops"];
 
@@ -44,7 +44,7 @@ export default function Player({ player, comp }) {
             boxShadow: "0px 0px 10px #585858",
             marginBottom: "2rem",
           }}
-          src={getPlayerUrl(playerInfo.player_id)}
+          src={getPhotoUrl(playerInfo.player_id)}
           alt={playerInfo.name_display_first_last}
         />
       )}

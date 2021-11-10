@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Player from "./components/Player";
 import "./css/normalize.css";
 import "./css/skeleton.css";
 import "./css/custom.css";
-import { hittingUrl, playerUrl } from "./utils/urls";
+import { hittingUrl, playerIdUrl, playerSearchUrl } from "./utils/urls";
 
 const listStyles = {
   listStyle: "none",
@@ -36,6 +36,54 @@ function App() {
   });
   const [noResults, setNoResults] = useState(false);
 
+  useEffect(() => {
+    const queryString = new URLSearchParams(window.location.search);
+    const player1Id = queryString.get("player1");
+    const player2Id = queryString.get("player2");
+    if (player1Id) {
+      getPlayerById(player1Id).then((res) => {
+        const playerInfo = res.player_info.queryResults.row;
+        setPlayers((prevState) => ({
+          ...prevState,
+          player1: {
+            ...prevState.player1,
+            playerInfo: playerInfo,
+          },
+        }));
+      });
+      getStats(player1Id).then((res) => {
+        setPlayers((prevState) => ({
+          ...prevState,
+          player1: {
+            ...prevState.player1,
+            stats: res,
+          },
+        }));
+      });
+    }
+    if (player2Id) {
+      getPlayerById(player2Id).then((res) => {
+        const playerInfo = res.player_info.queryResults.row;
+        setPlayers((prevState) => ({
+          ...prevState,
+          player2: {
+            ...prevState.player2,
+            playerInfo: playerInfo,
+          },
+        }));
+      });
+      getStats(player2Id).then((res) => {
+        setPlayers((prevState) => ({
+          ...prevState,
+          player2: {
+            ...prevState.player2,
+            stats: res,
+          },
+        }));
+      });
+    }
+  }, []);
+
   async function findPlayer(e, namePart, key) {
     e.preventDefault();
     setNoResults(false);
@@ -49,7 +97,7 @@ function App() {
     if (namePart.split(" ").length < 2) namePart = namePart + "%25";
     setQuery({ ...query, [key]: "" });
     const queryString = `?sport_code='mlb'&name_part='${namePart}'`;
-    const res = await fetch(playerUrl + queryString);
+    const res = await fetch(playerSearchUrl + queryString);
     const data = await res.json();
     const totalResults = Number(data.search_player_all.queryResults.totalSize);
     const queryResults = data.search_player_all.queryResults.row;
@@ -77,6 +125,9 @@ function App() {
           stats: stats,
         },
       });
+      const queryString = new URLSearchParams(window.location.search);
+      queryString.set(key, queryResults.player_id);
+      window.history.pushState(null, null, `?${queryString.toString()}`);
     } else if (totalResults > 1) {
       setNoResults(false);
       setResults({
@@ -84,6 +135,14 @@ function App() {
         [key]: queryResults,
       });
     }
+  }
+
+  async function getPlayerById(playerId) {
+    const res = await fetch(
+      playerIdUrl + `?sport_code='mlb'&player_id='${playerId}'`
+    );
+    const data = await res.json();
+    return data;
   }
 
   async function getStats(playerId) {
@@ -103,6 +162,9 @@ function App() {
         stats: stats,
       },
     });
+    const queryString = new URLSearchParams(window.location.search);
+    queryString.set(key, player.player_id);
+    window.history.pushState(null, null, `?${queryString.toString()}`);
   }
 
   return (
