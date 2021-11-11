@@ -1,56 +1,14 @@
 import { useEffect, useState } from "react";
-import Player from "./components/Player";
+import Stats from "./components/Stats";
+import Headshot from "./components/Headshot";
+import Loading from "./components/Loading";
+import Searchbar from "./components/Searchbar";
+import SearchResults from "./components/SearchResults";
+import { playerIDs } from "./utils/playerIDs";
+import { getPlayerById, getPlayersByName, getStats } from "./utils/queries";
 import "./css/normalize.css";
 import "./css/skeleton.css";
 import "./css/custom.css";
-import {
-  getPhotoUrl,
-  hittingUrl,
-  playerIdUrl,
-  playerSearchUrl,
-} from "./utils/urls";
-
-const listStyles = {
-  listStyle: "none",
-  overflow: "scroll",
-  border: "1px solid #ccc",
-  borderRadius: "8px",
-  padding: "1rem",
-  margin: "0.5rem",
-};
-
-const playerIDs = [
-  "121578",
-  "111188",
-  "124341",
-  "110001",
-  "112431",
-  "114680",
-  "119602",
-  "545361",
-  "118258",
-  "405395",
-  "121314",
-  "113376",
-  "121347",
-  "121836",
-  "121311",
-  "115749",
-  "116156",
-  "115270",
-  "110849",
-  "112391",
-  "116539",
-  "400085",
-  "110925",
-  "110533",
-  "124650",
-  "111437",
-  "111986",
-  "120117",
-  "118743",
-  "122544",
-];
 
 function App() {
   const [players, setPlayers] = useState({
@@ -72,7 +30,10 @@ function App() {
     player2: [],
   });
   const [noResults, setNoResults] = useState(false);
-
+  const [loading, setLoading] = useState({
+    player1: true,
+    player2: true,
+  });
   useEffect(() => {
     const queryString = new URLSearchParams(window.location.search);
     const player1Id =
@@ -100,6 +61,10 @@ function App() {
             stats: res,
           },
         }));
+        setLoading((prevState) => ({
+          ...prevState,
+          player1: false,
+        }));
       });
     }
     if (player2Id) {
@@ -122,12 +87,19 @@ function App() {
           },
         }));
       });
+      setLoading((prevState) => ({
+        ...prevState,
+        player2: false,
+      }));
     }
   }, []);
-
-  async function findPlayer(e, namePart, key) {
+  async function handleSearch(e, namePart, key) {
     e.preventDefault();
-    setNoResults(false);
+    setLoading((prevState) => ({
+      ...prevState,
+      [key]: true,
+    }));
+    // setNoResults(false);
     setPlayers({
       ...players,
       [key]: {
@@ -135,13 +107,8 @@ function App() {
         stats: null,
       },
     });
-    if (namePart.split(" ").length < 2) namePart = namePart + "%25";
     setQuery({ ...query, [key]: "" });
-    const queryString = `?sport_code='mlb'&name_part='${namePart}'`;
-    const res = await fetch(playerSearchUrl + queryString);
-    const data = await res.json();
-    const totalResults = Number(data.search_player_all.queryResults.totalSize);
-    const queryResults = data.search_player_all.queryResults.row;
+    const { totalResults, queryResults } = await getPlayersByName(namePart);
     if (totalResults === 0) {
       setNoResults(true);
       setResults({
@@ -176,24 +143,16 @@ function App() {
         [key]: queryResults,
       });
     }
+    setLoading((prevState) => ({
+      ...prevState,
+      [key]: false,
+    }));
   }
-
-  async function getPlayerById(playerId) {
-    const res = await fetch(
-      playerIdUrl + `?sport_code='mlb'&player_id='${playerId}'`
-    );
-    const data = await res.json();
-    return data;
-  }
-
-  async function getStats(playerId) {
-    const queryParams = `?league_list_id='mlb'&game_type='R'&player_id='${playerId}'`;
-    const res = await fetch(hittingUrl + queryParams);
-    const data = await res.json();
-    return data.sport_career_hitting.queryResults.row;
-  }
-
   async function selectPlayer(player, key) {
+    setLoading((prevState) => ({
+      ...prevState,
+      [key]: true,
+    }));
     const stats = await getStats(player.player_id);
     setResults({ ...results, [key]: [] });
     setPlayers({
@@ -206,170 +165,77 @@ function App() {
     const queryString = new URLSearchParams(window.location.search);
     queryString.set(key, player.player_id);
     window.history.pushState(null, null, `?${queryString.toString()}`);
+    setLoading((prevState) => ({
+      ...prevState,
+      [key]: false,
+    }));
   }
 
   return (
     <div className="container">
       <div className="row">
         <div className="twelve columns">
-          <h1
-            style={{
-              marginTop: "2rem",
-              textAlign: "center",
-            }}
-          >
-            MLB Player Comparison
-          </h1>
+          <h1>MLB Player Comparison</h1>
         </div>
       </div>
       {/* Player One */}
       <div className="row">
         <div className="six columns">
-          <form onSubmit={(e) => findPlayer(e, query.player1, "player1")}>
-            <div>
-              <input
-                value={query.player1}
-                onChange={(e) =>
-                  setQuery({ ...query, player1: e.target.value })
-                }
-                type="text"
-                placeholder="Player 1"
-                style={{ width: "100%" }}
-              />
-              <button
-                className={query.player1 ? "button-primary" : ""}
-                disabled={!query.player1}
-                style={{ width: "100%" }}
-                type="submit"
-              >
-                Search
-              </button>
-            </div>
-          </form>
-          {players.player1.playerInfo ? (
-            <Player
-              player={players.player1}
-              comp={players.player2.stats}
-              fallback="Player 1"
-            />
+          <Searchbar
+            playerKey="player1"
+            query={query.player1}
+            setQuery={setQuery}
+            handleSearch={handleSearch}
+          />
+          {loading.player1 ? (
+            <Loading />
           ) : (
             <>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <img
-                  style={{
-                    backgroundColor: "white",
-                    width: "200px",
-                    padding: "8px",
-                    minHeight: "300px",
-                    border: "1px solid black",
-                    boxShadow: "0px 0px 10px #585858",
-                    marginBottom: "2rem",
-                  }}
-                  src={getPhotoUrl()}
-                  alt="blank headshot"
+              <Headshot player={players.player1.playerInfo} />
+              {players.player1.playerInfo ? (
+                <Stats
+                  player={players.player1}
+                  comp={players.player2.stats}
+                  fallback="Player 1"
                 />
-              </div>
-              <div className="search-results">
-                <h3>Search Results</h3>
-                {noResults && "No results"}
-                {results.player1.length > 0 && (
-                  <div>
-                    <ul style={listStyles}>
-                      {results.player1.map((player) => (
-                        <li
-                          key={player.player_id}
-                          onClick={() => selectPlayer(player, "player1")}
-                        >
-                          <span>{player.name_display_first_last}</span>
-                          <span>{player.position}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <SearchResults
+                  results={results.player1}
+                  selectPlayer={selectPlayer}
+                  noResults={noResults}
+                  playerKey="player1"
+                />
+              )}
             </>
           )}
         </div>
         {/* Player Two */}
         <div className="six columns">
-          <form onSubmit={(e) => findPlayer(e, query.player2, "player2")}>
-            <div>
-              <input
-                value={query.player2}
-                onChange={(e) =>
-                  setQuery({ ...query, player2: e.target.value })
-                }
-                type="text"
-                placeholder="Player 2"
-                style={{ width: "100%" }}
-              />
-              <button
-                className={query.player2 ? "button-primary" : ""}
-                disabled={!query.player2}
-                style={{ width: "100%" }}
-                type="submit"
-              >
-                Search
-              </button>
-            </div>
-          </form>
-          {players.player2.playerInfo ? (
-            <Player
-              player={players.player2}
-              comp={players.player1.stats}
-              fallback="Player 2"
-            />
+          <Searchbar
+            playerKey="player2"
+            query={query.player2}
+            setQuery={setQuery}
+            handleSearch={handleSearch}
+          />
+          {loading.player2 ? (
+            <Loading />
           ) : (
             <>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <img
-                  style={{
-                    backgroundColor: "white",
-                    width: "200px",
-                    padding: "8px",
-                    minHeight: "300px",
-                    border: "1px solid black",
-                    boxShadow: "0px 0px 10px #585858",
-                    marginBottom: "2rem",
-                  }}
-                  src={getPhotoUrl()}
-                  alt="blank headshot"
+              <Headshot player={players.player2.playerInfo} />
+              {players.player2.playerInfo ? (
+                <Stats
+                  player={players.player2}
+                  comp={players.player1.stats}
+                  fallback="Player 2"
                 />
-              </div>
-              <div className="search-results">
-                <h3>Search Results</h3>
-                {noResults && "No results"}
-                {results.player2.length > 0 && (
-                  <div>
-                    <ul style={listStyles}>
-                      {results.player2.map((player) => (
-                        <li
-                          key={player.player_id}
-                          onClick={() => selectPlayer(player, "player2")}
-                        >
-                          <span>{player.name_display_first_last}</span>
-                          <span>{player.position}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <SearchResults
+                  results={results.player2}
+                  selectPlayer={selectPlayer}
+                  noResults={noResults}
+                  playerKey="player2"
+                />
+              )}
             </>
           )}
         </div>

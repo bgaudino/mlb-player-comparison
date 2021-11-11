@@ -1,8 +1,6 @@
-import { getPhotoUrl } from "../utils/urls";
-
 const statCategories = ["avg", "hr", "rbi", "r", "sb", "obp", "slg", "ops"];
 
-export default function Player({ player, comp }) {
+export default function Stats({ player, comp }) {
   const { playerInfo, stats } = player;
 
   function getColor(stat, opponent) {
@@ -32,21 +30,6 @@ export default function Player({ player, comp }) {
         alignItems: "center",
       }}
     >
-      {playerInfo && (
-        <img
-          style={{
-            backgroundColor: "white",
-            width: "200px",
-            padding: "8px",
-            minHeight: "300px",
-            border: "1px solid black",
-            boxShadow: "0px 0px 10px #585858",
-            marginBottom: "2rem",
-          }}
-          src={getPhotoUrl(playerInfo.player_id)}
-          alt={playerInfo.name_display_first_last}
-        />
-      )}
       <div className="player-stats">
         <h3 className="name">{playerInfo?.name_display_first_last}</h3>
         {stats && (

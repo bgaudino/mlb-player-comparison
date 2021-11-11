@@ -4,6 +4,11 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   color: #fff;
+  padding: 4rem 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-align: center;
 }
 
 input {
@@ -41,7 +46,6 @@ input[type="button"].button-primary:focus {
 
 .player-stats {
   width: 100%;
-  text-align: center;
   background: rgba(0, 0, 0, 1);
   color: #fff;
   padding: 10px;
@@ -51,7 +55,6 @@ input[type="button"].button-primary:focus {
 
 .search-results {
   width: 100%;
-  text-align: center;
   background: rgba(0, 0, 0, 1);
   color: #fff;
   padding: 10px;
