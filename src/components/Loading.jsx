@@ -6,12 +6,12 @@ export default function Loading() {
   useEffect(() => {
     const interval = setInterval(() => {
       setLoadingBar((prevState) => {
-        if (prevState === 500) {
+        if (prevState === 100) {
           return 0;
         }
         return prevState + 1;
       });
-    }, 100);
+    }, 300);
 
     return function cleanup() {
       clearInterval(interval);
