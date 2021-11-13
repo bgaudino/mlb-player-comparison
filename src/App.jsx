@@ -4,7 +4,7 @@ import Headshot from "./components/Headshot";
 import Loading from "./components/Loading";
 import Searchbar from "./components/Searchbar";
 import SearchResults from "./components/SearchResults";
-import { playerIDs } from "./utils/playerIDs";
+import { hitterIDs, pitcherIDs } from "./utils/playerIDs";
 import { getPlayerById, getPlayersByName, getStats } from "./utils/queries";
 import "./css/normalize.css";
 import "./css/skeleton.css";
@@ -36,9 +36,12 @@ function App() {
     player1: true,
     player2: true,
   });
-  const [statType, setStatType] = useState(new URLSearchParams(window.location.search).get("stat_type") || "hitting");
+  const [statType, setStatType] = useState(
+    new URLSearchParams(window.location.search).get("stat_type") || "hitting"
+  );
 
   useEffect(() => {
+    const playerIDs = statType === "pitching" ? pitcherIDs : hitterIDs;
     const queryString = new URLSearchParams(window.location.search);
     const player1Id =
       queryString.get("player1") ||
@@ -114,7 +117,7 @@ function App() {
         }));
       });
     }
-  }, []);
+  }, [statType]);
   async function handleSearch(e, namePart, key) {
     e.preventDefault();
     setLoading((prevState) => ({
@@ -157,9 +160,7 @@ function App() {
           pitchingStats: pitchingStats,
         },
       });
-      const queryString = new URLSearchParams(window.location.search);
-      queryString.set(key, queryResults.player_id);
-      window.history.pushState(null, null, `?${queryString.toString()}`);
+      handleParams(key, queryResults.player_id);
     } else if (totalResults > 1) {
       setNoResults(false);
       setResults({
@@ -178,12 +179,14 @@ function App() {
       [key]: true,
     }));
     const stats = await getStats(player.player_id);
+    const pitchingStats = await getStats(player.player_id, "pitching");
     setResults({ ...results, [key]: [] });
     setPlayers({
       ...players,
       [key]: {
         playerInfo: player,
         stats: stats,
+        pitchingStats: pitchingStats,
       },
     });
     const queryString = new URLSearchParams(window.location.search);
@@ -195,11 +198,24 @@ function App() {
     }));
   }
 
+  function handleParams(key, value) {
+    const queryString = new URLSearchParams(window.location.search);
+    queryString.set(key, value);
+    window.history.replaceState(null, null, `?${queryString.toString()}`);
+  }
+
   return (
     <div className="container">
       <div className="row">
         <div className="twelve columns">
-          <h1>MLB Player Comparison</h1>
+          <h1
+            style={{
+              cursor: "pointer",
+            }}
+            onClick={() => (window.location.href = "/")}
+          >
+            MLB Player Comparison
+          </h1>
         </div>
       </div>
       <div className="row">
@@ -217,8 +233,12 @@ function App() {
             name="statType"
             value="hitting"
             checked={statType === "hitting"}
-            onChange={() => setStatType("hitting")}
-          />&nbsp;
+            onChange={() => {
+              setStatType("hitting");
+              handleParams("stat_type", "hitting");
+            }}
+          />
+          &nbsp;
           <label for="hitting">Hitting</label>
           <div style={{ width: "10px" }}></div>
           <input
@@ -227,7 +247,10 @@ function App() {
             name="statType"
             value="pitching"
             checked={statType === "pitching"}
-            onChange={() => setStatType("pitching")}
+            onChange={() => {
+              setStatType("pitching");
+              handleParams("stat_type", "pitching");
+            }}
           />
           &nbsp;
           <label for="pitching">Pitching</label>

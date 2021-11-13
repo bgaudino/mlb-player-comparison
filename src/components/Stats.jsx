@@ -42,38 +42,33 @@ export default function Stats({ player, comp, type }) {
     >
       <div className="player-stats">
         <h3 className="name">{playerInfo?.name_display_first_last}</h3>
-        {statValues && (
-          <table style={{ width: "100%" }}>
-            <tbody>
-              {statCategories.map((stat) => (
-                <tr
-                  key={stat}
-                  style={
-                    !comp
-                      ? {}
-                      : {
-                          backgroundColor: getColor(
-                            statValues?.[stat],
-                            comp?.[stat],
-                            stat
-                          ).background,
-                          color: getColor(
-                            statValues?.[stat],
-                            comp?.[stat],
-                            stat
-                          ).color,
-                        }
-                  }
-                >
-                  <td style={{ fontWeight: "bold", padding: 20 }}>
-                    {stat.toUpperCase()}
-                  </td>
-                  <td>{statValues?.[stat]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <table style={{ width: "100%" }}>
+          <tbody>
+            {statCategories.map((stat) => (
+              <tr
+                key={stat}
+                style={
+                  !comp
+                    ? {}
+                    : {
+                        backgroundColor: getColor(
+                          statValues?.[stat],
+                          comp?.[stat],
+                          stat
+                        ).background,
+                        color: getColor(statValues?.[stat], comp?.[stat], stat)
+                          .color,
+                      }
+                }
+              >
+                <td style={{ fontWeight: "bold", padding: 20 }}>
+                  {stat.toUpperCase()}
+                </td>
+                <td>{statValues?.[stat]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

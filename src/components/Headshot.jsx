@@ -1,4 +1,4 @@
-import { getPhotoUrl } from "../utils/urls";
+import { getPhotoUrl } from "../utils/queries";
 
 export default function Headshot({ player }) {
   return (
