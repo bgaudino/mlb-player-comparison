@@ -1,4 +1,4 @@
-import { playerIdUrl, hittingUrl, playerSearchUrl } from "./urls";
+import { playerIdUrl, hittingUrl, pitchingUrl, playerSearchUrl } from "./urls";
 
 export async function getPlayerById(playerId) {
   const res = await fetch(
@@ -8,11 +8,13 @@ export async function getPlayerById(playerId) {
   return data;
 }
 
-export async function getStats(playerId) {
+export async function getStats(playerId, type="hitting") {
   const queryParams = `?league_list_id='mlb'&game_type='R'&player_id='${playerId}'`;
-  const res = await fetch(hittingUrl + queryParams);
+  const url = type === "pitching" ? pitchingUrl : hittingUrl;
+  const res = await fetch(url + queryParams);
   const data = await res.json();
-  return data.sport_career_hitting.queryResults.row;
+  const results = type === "pitching" ? data.sport_career_pitching.queryResults : data.sport_career_hitting.queryResults;
+  return results.row;
 }
 
 export async function getPlayersByName(namePart) {

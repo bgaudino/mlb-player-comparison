@@ -15,10 +15,12 @@ function App() {
     player1: {
       playerInfo: null,
       stats: null,
+      pitchingStats: null,
     },
     player2: {
       playerInfo: null,
       stats: null,
+      pitchingStats: null,
     },
   });
   const [query, setQuery] = useState({
@@ -34,6 +36,8 @@ function App() {
     player1: true,
     player2: true,
   });
+  const [statType, setStatType] = useState(new URLSearchParams(window.location.search).get("stat_type") || "hitting");
+
   useEffect(() => {
     const queryString = new URLSearchParams(window.location.search);
     const player1Id =
@@ -59,6 +63,15 @@ function App() {
           player1: {
             ...prevState.player1,
             stats: res,
+          },
+        }));
+      });
+      getStats(player1Id, "pitching").then((res) => {
+        setPlayers((prevState) => ({
+          ...prevState,
+          player1: {
+            ...prevState.player1,
+            pitchingStats: res,
           },
         }));
         setLoading((prevState) => ({
@@ -87,10 +100,19 @@ function App() {
           },
         }));
       });
-      setLoading((prevState) => ({
-        ...prevState,
-        player2: false,
-      }));
+      getStats(player2Id, "pitching").then((res) => {
+        setPlayers((prevState) => ({
+          ...prevState,
+          player2: {
+            ...prevState.player2,
+            pitchingStats: res,
+          },
+        }));
+        setLoading((prevState) => ({
+          ...prevState,
+          player2: false,
+        }));
+      });
     }
   }, []);
   async function handleSearch(e, namePart, key) {
@@ -125,12 +147,14 @@ function App() {
     } else if (totalResults === 1) {
       setNoResults(false);
       const stats = await getStats(queryResults.player_id);
+      const pitchingStats = await getStats(queryResults.player_id, "pitching");
       setResults({ ...results, [key]: [] });
       setPlayers({
         ...players,
         [key]: {
           playerInfo: queryResults,
           stats: stats,
+          pitchingStats: pitchingStats,
         },
       });
       const queryString = new URLSearchParams(window.location.search);
@@ -178,6 +202,37 @@ function App() {
           <h1>MLB Player Comparison</h1>
         </div>
       </div>
+      <div className="row">
+        <div
+          className="twelve columns"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "baseline",
+          }}
+        >
+          <input
+            id="hitting"
+            type="radio"
+            name="statType"
+            value="hitting"
+            checked={statType === "hitting"}
+            onChange={() => setStatType("hitting")}
+          />&nbsp;
+          <label for="hitting">Hitting</label>
+          <div style={{ width: "10px" }}></div>
+          <input
+            id="pitching"
+            type="radio"
+            name="statType"
+            value="pitching"
+            checked={statType === "pitching"}
+            onChange={() => setStatType("pitching")}
+          />
+          &nbsp;
+          <label for="pitching">Pitching</label>
+        </div>
+      </div>
       {/* Player One */}
       <div className="row">
         <div className="six columns">
@@ -195,8 +250,13 @@ function App() {
               {players.player1.playerInfo ? (
                 <Stats
                   player={players.player1}
-                  comp={players.player2.stats}
+                  comp={
+                    statType === "hitting"
+                      ? players.player2.stats
+                      : players.player2.pitchingStats
+                  }
                   fallback="Player 1"
+                  type={statType}
                 />
               ) : (
                 <SearchResults
@@ -225,8 +285,13 @@ function App() {
               {players.player2.playerInfo ? (
                 <Stats
                   player={players.player2}
-                  comp={players.player1.stats}
+                  comp={
+                    statType === "hitting"
+                      ? players.player1.stats
+                      : players.player1.pitchingStats
+                  }
                   fallback="Player 2"
+                  type={statType}
                 />
               ) : (
                 <SearchResults
