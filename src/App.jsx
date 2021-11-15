@@ -41,6 +41,9 @@ function App() {
   );
 
   useEffect(() => {
+    alert(
+      "Lookup Service Unavailable during database migration. Service expected to be restored by 11/18/2021."
+    );
     const playerIDs = statType === "pitching" ? pitcherIDs : hitterIDs;
     const queryString = new URLSearchParams(window.location.search);
     const player1Id =
